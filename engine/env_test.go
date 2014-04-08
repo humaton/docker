@@ -320,5 +320,17 @@ func TestLongNumbersArray(t *testing.T) {
 	}
 	if res["Test"].TestNum[0] != v.TestNum[0] {
 		t.Fatalf("TestNum %d, expected %d", res["Test"].TestNum, v.TestNum)
+
+func TestExpand(t *testing.T) {
+	env := &Env{}
+	env.Set("foo", "bar")
+	env.Set("letters", "a", "b", "c", "d")
+	env.Set("empty", "")
+	result, err := env.Expand("foo=$foo, the last letter is $letters, empty:<$empty>\nnon-existent key: '$nonexistent'")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result != "foo=bar, the last letter is d, empty:<>\nnon-existent key: ''" {
+		t.Fatalf("%v\n", result)
 	}
 }

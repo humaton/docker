@@ -1604,7 +1604,9 @@ func (cli *DockerCli) CmdCommit(args ...string) error {
 	flChanges := opts.NewListOpts(nil)
 	cmd.Var(&flChanges, []string{"c", "-change"}, "Apply a modification before committing the image")
 	// FIXME: --run is deprecated, it will be replaced with inline Dockerfile commands.
-	flConfig := cmd.String([]string{"#run", "#-run"}, "", "This option is deprecated and will be removed in a future version in favor of inline Dockerfile-compatible commands")
+	flConfig := cmd.String([]string{"#run", "#-run"}, "", "this option is deprecated and will be removed in a future version in favor of inline Dockerfile-compatible commands")
+	flChanges := opts.NewListOpts(nil)
+	cmd.Var(&flChanges, []string{"c", "-change"}, "Apply a modification before committing the image")
 	if err := cmd.Parse(args); err != nil {
 		return nil
 	}
@@ -1637,11 +1639,12 @@ func (cli *DockerCli) CmdCommit(args ...string) error {
 	if *flPause != true {
 		v.Set("pause", "0")
 	}
-
+	v.Set("changes", strings.Join(flChanges.GetAll(), "\n"))
 	var (
 		config *runconfig.Config
 		env    engine.Env
 	)
+	// FIXME: --run is deprecated in favor of --set and --unset
 	if *flConfig != "" {
 		config = &runconfig.Config{}
 		if err := json.Unmarshal([]byte(*flConfig), config); err != nil {

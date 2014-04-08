@@ -32,6 +32,7 @@ import (
 	"github.com/docker/docker/pkg/systemd"
 	"github.com/docker/docker/pkg/version"
 	"github.com/docker/docker/registry"
+	"github.com/docker/docker/runconfig"
 	"github.com/docker/docker/utils"
 )
 
@@ -458,7 +459,7 @@ func postCommit(eng *engine.Engine, version version.Version, w http.ResponseWrit
 		return err
 	}
 	var (
-		config       engine.Env
+		legacyconfig runconfig.Config
 		env          engine.Env
 		job          = eng.Job("commit", r.Form.Get("container"))
 		stdoutBuffer = bytes.NewBuffer(nil)
@@ -468,9 +469,9 @@ func postCommit(eng *engine.Engine, version version.Version, w http.ResponseWrit
 		return err
 	}
 
-	if err := config.Decode(r.Body); err != nil {
-		log.Errorf("%s", err)
-	}
+	//if err := config.Decode(r.Body); err != nil {
+	//	log.Errorf("%s", err)
+	//}
 
 	if r.FormValue("pause") == "" && version.GreaterThanOrEqualTo("1.13") {
 		job.Setenv("pause", "1")
@@ -484,6 +485,11 @@ func postCommit(eng *engine.Engine, version version.Version, w http.ResponseWrit
 	job.Setenv("comment", r.Form.Get("comment"))
 	job.Setenv("changes", r.Form.Get("changes"))
 	job.SetenvSubEnv("config", &config)
+	// Prepend fields from legacy config object, for reverse compatibility.
+	if err := json.NewDecoder(r.Body).Decode(&legacyconfig); err != nil {
+		return err
+	}
+	job.Setenv("changes", legacyconfig.AsScript()+"\n"+job.Getenv("changes"))
 
 	job.Stdout.Add(stdoutBuffer)
 	if err := job.Run(); err != nil {

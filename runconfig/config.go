@@ -12,6 +12,7 @@ type Config struct {
 	Hostname        string
 	Domainname      string
 	User            string
+	Maintainer      string
 	Memory          int64  // Memory limit (in bytes)
 	MemorySwap      int64  // Total memory usage (memory + swap); set `-1' to disable swap
 	CpuShares       int64  // CPU shares (relative weight vs. other containers)
@@ -68,6 +69,9 @@ func ContainerConfigFromJob(job *engine.Job) *Config {
 	}
 	if Entrypoint := job.GetenvList("Entrypoint"); Entrypoint != nil {
 		config.Entrypoint = Entrypoint
+	}
+	if Maintainer := job.Getenv("Maintainer"); Maintainer != "" {
+		config.Maintainer = Maintainer
 	}
 	return config
 }

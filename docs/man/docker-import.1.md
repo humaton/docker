@@ -6,14 +6,18 @@ docker-import - Create an empty filesystem image and import the contents of the 
 
 # SYNOPSIS
 **docker import**
+[**-c**|**--change**[=*[]*]]
 URL|- [REPOSITORY[:TAG]]
+
 
 # DESCRIPTION
 Create a new filesystem image from the contents of a tarball (`.tar`,
 `.tar.gz`, `.tgz`, `.bzip`, `.tar.xz`, `.txz`) into it, then optionally tag it.
 
 # OPTIONS
-There are no available options.
+**-c**, **--change**=*changes*
+   Set changes to the image variables. This option allows you to change image properties
+   that are available for the process that will be launched inside of the container.
 
 # EXAMPLES
 

@@ -4,10 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/docker/docker/api"
-	"github.com/docker/docker/engine"
-	"github.com/docker/docker/runconfig"
-	"github.com/docker/docker/utils"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -17,12 +13,12 @@ import (
 
 	"github.com/docker/docker/api"
 	"github.com/docker/docker/engine"
+	"github.com/docker/docker/runconfig"
 	"github.com/docker/docker/pkg/version"
+
 )
 
 func TestPostCommit(t *testing.T) {
-	eng := tmpEngine(t)
-	defer rmEngine(eng)
 	var called bool
 	eng.Register("commit", func(job *engine.Job) engine.Status {
 		if job.Getenv("changes") != "user solomon\nentrypoint [\"awesome\",\"command\"]\nenv foo bar\nentrypoint echo" {

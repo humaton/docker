@@ -693,7 +693,7 @@ NOTE: Docker will warn you if any containers exist that are using these untagged
 
 ## import
 
-    Usage: docker import URL|- [REPOSITORY[:TAG]]
+    Usage: Usage: docker import [OPTIONS] URL|- [REPOSITORY[:TAG]]
 
     Create an empty filesystem image and import the contents of the tarball (.tar, .tar.gz, .tgz, .bzip, .tar.xz, .txz) into it, then optionally tag it.
 
@@ -701,6 +701,11 @@ URLs must start with `http` and point to a single file archive (.tar,
 .tar.gz, .tgz, .bzip, .tar.xz, or .txz) containing a root filesystem. If
 you would like to import from a local directory or archive, you can use
 the `-` parameter to take the data from `STDIN`.
+
+    -c, --change=[]
+    Allows specifying standard changes to be applied to the
+    new image. Changes are expressed in the Dockerfile syntax,
+    and can be used to modify the image metadata.
 
 ### Examples
 
@@ -724,6 +729,10 @@ Note the `sudo` in this example – you must preserve
 the ownership of the files (especially root ownership) during the
 archiving with tar. If you are not root (or the sudo command) when you
 tar, then the ownerships might not get preserved.
+
+**Import to docker via pipe and `STDIN` and change ENV and CMD:**
+
+    $ cat exampleimage.tgz | sudo docker import --change 'ENV foo:bar' --change 'CMD /usr/bin/sh'  - exampleimagelocal:new
 
 ## info
 

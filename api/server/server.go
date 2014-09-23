@@ -484,7 +484,6 @@ func postCommit(eng *engine.Engine, version version.Version, w http.ResponseWrit
 	job.Setenv("author", r.Form.Get("author"))
 	job.Setenv("comment", r.Form.Get("comment"))
 	job.Setenv("changes", r.Form.Get("changes"))
-	job.SetenvSubEnv("config", &config)
 	// Prepend fields from legacy config object, for reverse compatibility.
 	if err := json.NewDecoder(r.Body).Decode(&legacyconfig); err != nil {
 		return err
@@ -540,6 +539,7 @@ func postImagesCreate(eng *engine.Engine, version version.Version, w http.Respon
 			repo, tag = parsers.ParseRepositoryTag(repo)
 		}
 		job = eng.Job("import", r.Form.Get("fromSrc"), repo, tag)
+		job.Setenv("changes", r.Form.Get("changes"))
 		job.Stdin.Add(r.Body)
 	}
 

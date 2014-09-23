@@ -3,9 +3,11 @@ package graph
 import (
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/docker/docker/engine"
 	"github.com/docker/docker/pkg/archive"
+	"github.com/docker/docker/runconfig"
 	"github.com/docker/docker/utils"
 )
 
@@ -46,7 +48,25 @@ func (s *TagStore) CmdImport(job *engine.Job) engine.Status {
 		defer progressReader.Close()
 		archive = progressReader
 	}
-	img, err := s.graph.Create(archive, "", "", "Imported from "+src, "", nil, nil)
+	var (
+		changes = job.GetenvList("changes")
+		config  runconfig.Config
+	)
+	//put changes in ENV for debuging
+	if len(changes) > 0 {
+		for _, c := range strings.Split(job.Getenv("changes"), "\n") {
+			switch {
+			case strings.Contains(c, "ENV"):
+				config.Env = strings.Split(strings.Trim(c, "ENV "), " ")
+			case strings.Contains(c, "CMD"):
+				config.Cmd = append(config.Cmd, strings.Trim(c, "CMD "))
+			case strings.Contains(c, "MAINTAINER"):
+				config.Maintainer = append(config.Maintainer, strings.Trim(c, "MAINTAINER "))
+			}
+		}
+	}
+
+	img, err := s.graph.Create(archive, "", "", "Imported from "+src, "", nil, &config)
 	if err != nil {
 		return job.Error(err)
 	}
